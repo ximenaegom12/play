@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LEO: Misión de supervivencia</title>
+<style>
+:root{--bg:#060b18;--char:#1c2330;--cream:#f3ead8;--gold:#d9a441;--gold2:#f0c870;--ok:#6fcf97;--bad:#e5645a}
+*{box-sizing:border-box;margin:0}html,body{min-height:100%}
+body{background:radial-gradient(ellipse at 50% -10%,#14285a 0,var(--bg) 62%) fixed;color:var(--cream);font:16px/1.5 "Segoe UI",system-ui,sans-serif;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+#app{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:64px 14px 170px;min-height:100vh}
+h1,h2,h3,.title{font-family:Georgia,"Times New Roman",serif;letter-spacing:.03em}
+.title{font-size:clamp(1.9rem,6vw,3.4rem);line-height:1.1;color:var(--gold2);text-shadow:0 0 26px rgba(217,164,65,.45)}
+h2{font-size:clamp(1.3rem,4vw,2rem);color:var(--cream)}h3{color:var(--gold2)}
+.sub{opacity:.85;max-width:560px}.gold{color:var(--gold2);font:italic 1.35rem Georgia,serif;line-height:1.7}
+.tag{font-size:.8rem;letter-spacing:.3em;color:var(--gold)}
+#main{width:100%;max-width:940px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;animation:in .7s both}
+#main.out{animation:outt .42s both}
+@keyframes in{from{opacity:0;transform:translateY(22px) scale(.98);filter:blur(8px)}}
+@keyframes outt{to{opacity:0;transform:scale(1.03);filter:blur(10px)}}
+.glass{background:rgba(255,255,255,.055);border:1px solid rgba(240,200,112,.22);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;box-shadow:0 12px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.07)}
+.pad{padding:20px 24px;max-width:620px}
+.btn{position:relative;overflow:hidden;cursor:pointer;border:1px solid var(--gold);background:linear-gradient(135deg,#2a2210,#4a3a14);color:var(--gold2);font:700 1rem Georgia,serif;letter-spacing:.12em;padding:14px 28px;border-radius:12px;min-height:50px;transition:.25s;box-shadow:0 0 18px rgba(217,164,65,.25)}
+.btn.big{font-size:1.05rem;padding:16px 34px;animation:pulse 2.4s infinite}
+.btn:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 32px rgba(217,164,65,.6)}.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.35;cursor:not-allowed;animation:none}
+@keyframes pulse{50%{box-shadow:0 0 34px rgba(217,164,65,.55)}}
+.rp{position:absolute;border-radius:50%;background:rgba(240,200,112,.5);transform:scale(0);animation:rp .6s linear;pointer-events:none}
+@keyframes rp{to{transform:scale(4);opacity:0}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;width:100%}
+.card{padding:18px;text-align:left;animation:in .7s both}.card p{font-size:.92rem;line-height:1.6;opacity:.92;margin-top:8px}
+.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.num{font:700 1.7rem Georgia,serif;color:var(--gold)}
+.ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:1.3rem;background:radial-gradient(#3a2e12,#161b2a);border:1px solid rgba(240,200,112,.4)}
+#hud{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;gap:12px;align-items:center;padding:10px 14px;background:rgba(6,11,24,.7);backdrop-filter:blur(8px)}
+.xbar{flex:1;height:8px;background:#1c2330;border-radius:6px;overflow:hidden}.xbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 1s;box-shadow:0 0 12px var(--gold)}
+#snd{background:none;border:1px solid #ffffff33;color:var(--cream);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:1.1rem}
+.bar{width:min(520px,90%);height:10px;background:#1c2330;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--bad),var(--gold2))}
+.seq,.opts,.slots{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.opts{max-width:640px}
+.mc{width:112px;min-height:98px;padding:10px 6px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,#14264d,#0c1630);border:1px solid var(--gold);box-shadow:0 0 20px rgba(217,164,65,.2);animation:in .5s both;transition:.45s}
+.mc b,.opt b{font:700 1.9rem Georgia,serif;color:var(--gold2)}.mc small,.opt small{font-size:.66rem;letter-spacing:.06em;line-height:1.2}
+.mc.flip{transform:rotateY(90deg);opacity:0}.mc.dis{animation:in .5s both,dz 1.1s infinite}
+@keyframes dz{50%{filter:blur(2px) brightness(1.5);transform:translateY(-4px)}}
+.opt{cursor:pointer;width:96px;min-height:84px;border-radius:12px;background:#111a30;border:1px solid #ffffff2a;color:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.2s;padding:6px}
+.opt:hover:not(:disabled){transform:translateY(-3px);border-color:var(--gold)}.opt.good{border-color:var(--ok);background:#12301f;opacity:.55}.opt.bad{border-color:var(--bad);background:#35161a;animation:sh .4s}
+@keyframes sh{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.slots i{width:38px;height:42px;border:1px dashed #ffffff44;border-radius:8px;display:grid;place-items:center;font:700 .95rem Georgia;font-style:normal}.slots i.f{border:1px solid var(--gold);background:#3a2e12;color:var(--gold2)}
+.bn{font:700 1.15rem Georgia,serif;animation:in .5s both;margin:6px 0}.bn b{color:var(--ok)}
+.xp{color:var(--ok);font:700 1.3rem Georgia,serif}
+.fx{position:fixed;z-index:20;pointer-events:none;font:700 1.9rem Georgia,serif;color:var(--gold2);text-shadow:0 0 18px var(--gold);left:50%;top:40%;transform:translateX(-50%)}
+.pt{position:fixed;z-index:19;width:6px;height:6px;border-radius:50%;background:var(--gold2);pointer-events:none}
+.hr{position:fixed;bottom:-30px;z-index:19;pointer-events:none;color:var(--gold2);animation:rise 4.5s ease-out forwards}
+@keyframes rise{to{transform:translateY(-110vh) rotate(25deg);opacity:0}}
+.sl{padding:10px 18px;min-width:180px;flex:1}.sl small{display:block;color:var(--gold);letter-spacing:.15em;font-size:.72rem}
+.slotsP{display:flex;gap:12px;flex-wrap:wrap;width:100%;max-width:620px}
+.plan{cursor:pointer;transition:.25s}.plan:hover{transform:translateY(-3px)}.plan.sel{border-color:var(--gold2);box-shadow:0 0 28px rgba(217,164,65,.5)}
+.badge{display:none;font-size:.68rem;letter-spacing:.14em;color:#111;background:var(--gold2);padding:2px 8px;border-radius:8px;font-weight:700}.sel .badge{display:inline-block}
+.stat{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}.stat div{padding:14px 18px;min-width:130px}.stat small{display:block;font-size:.68rem;letter-spacing:.14em;color:var(--gold)}.stat b{font:700 1.7rem Georgia}
+.ln{opacity:0;animation:in 1s forwards}
+#leo{position:fixed;right:6px;bottom:0;width:150px;z-index:3;pointer-events:none;filter:drop-shadow(0 6px 14px #000)}#leo svg{width:100%;overflow:visible}
+.body{animation:br 3.6s ease-in-out infinite;transform-origin:56px 150px}@keyframes br{50%{transform:scaleY(1.017)}}
+.head{animation:tl 5s ease-in-out infinite;transform-origin:56px 60px}@keyframes tl{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}
+.eyes{animation:bl 4.5s infinite;transform-origin:56px 42px}@keyframes bl{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.armR{animation:wk 1.2s ease-in-out infinite;transform-origin:80px 70px}@keyframes wk{50%{transform:rotate(-14deg)}}
+.armL{animation:wl 3s ease-in-out infinite;transform-origin:32px 70px}@keyframes wl{50%{transform:rotate(6deg)}}
+.gear{animation:sp 3s linear infinite;transform-origin:115px 128px}@keyframes sp{to{transform:rotate(360deg)}}
+.spark{animation:spk 1.2s infinite}@keyframes spk{0%,60%{opacity:0}70%{opacity:1}100%{opacity:0;transform:translate(-6px,-8px)}}
+.m2,.m3{display:none}#leo.win .m1,#leo.lose .m1{display:none}#leo.win .m3{display:block}#leo.lose .m2{display:block}
+#leo.win .body{animation:jp .6s ease-in-out infinite}@keyframes jp{50%{transform:translateY(-14px)}}
+#leo.win .armR{animation:none;transform:rotate(-150deg)}#leo.win .armL{animation:none;transform:rotate(150deg)}
+#leo.lose .head{animation:none;transform:rotate(10deg)}#leo.lose .armR,#leo.lose .armL{animation:none}
+#leo.focus .brw{transform:translateY(2.5px)}#leo.focus .armR{animation-duration:.5s}
+#plane{position:fixed;top:14%;left:-100px;width:80px;z-index:1;opacity:.55}#plane.fly{animation:fly 14s linear}@keyframes fly{to{transform:translateX(calc(100vw + 200px))}}
+@media(max-width:600px){#leo{width:92px}.mc{width:78px;min-height:84px}.mc b{font-size:1.5rem}.opt{width:78px}.grid{grid-template-columns:1fr}.pad{padding:16px}.btn{width:100%;max-width:340px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style></head><body>
+<canvas id="bg"></canvas>
+<svg id="plane" viewBox="0 0 80 30"><path d="M4 15L60 13Q74 14 78 15Q74 16 60 17Z" fill="#cfd8e8"/><path d="M34 14L22 2H30L46 14Z" fill="#aab6cc"/><path d="M34 16L22 28H30L46 16Z" fill="#aab6cc"/><path d="M8 14L2 6H8L14 14Z" fill="#aab6cc"/><circle cx="66" cy="15" r="1.4" fill="#d9a441"/></svg>
+<div id="hud"><b style="color:var(--gold2)">XP <span id="xpn">0</span></b><div class="xbar"><i id="xb"></i></div><button id="snd" aria-label="Sonido">🔊</button></div>
+<div id="app"><div id="main"></div></div>
+<div id="leo"><svg viewBox="0 0 150 170"><g><rect x="92" y="108" width="46" height="46" rx="6" fill="#1c2330" stroke="#d9a441" stroke-opacity=".5"/><circle class="gear" cx="115" cy="128" r="11" fill="none" stroke="#d9a441" stroke-width="4" stroke-dasharray="5 3"/><circle cx="115" cy="128" r="3" fill="#d9a441"/><circle class="spark" cx="100" cy="112" r="2" fill="#f0c870"/></g>
+<g class="body"><rect x="38" y="104" width="16" height="44" rx="4" fill="#2f5e9e"/><rect x="58" y="104" width="16" height="44" rx="4" fill="#2a5391"/><rect x="35" y="143" width="21" height="12" rx="4" fill="#4a3426"/><rect x="57" y="143" width="21" height="12" rx="4" fill="#4a3426"/><rect x="32" y="64" width="48" height="46" rx="12" fill="#14264d"/>
+<g class="armL"><rect x="23" y="66" width="12" height="16" rx="5" fill="#14264d"/><rect x="25" y="78" width="9" height="26" rx="4" fill="#e0b08c"/></g>
+<g class="head"><rect x="50" y="50" width="12" height="12" fill="#d3a07c"/><circle cx="56" cy="40" r="19" fill="#e0b08c"/><path d="M37 39Q37 19 57 20Q75 20 75 39Q68 29 56 30Q44 30 37 39Z" fill="#1a1410"/><g class="eyes"><ellipse cx="49" cy="42" rx="2.3" ry="2.8" fill="#1a1a1a"/><ellipse cx="63" cy="42" rx="2.3" ry="2.8" fill="#1a1a1a"/></g><path class="brw" d="M44 35.5h10M58 35.5h10" stroke="#1a1410" stroke-width="2" stroke-linecap="round"/><path class="m1" d="M50 51q6 5 12 0" stroke="#7a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/><path class="m2" d="M50 54q6-5 12 0" stroke="#7a4a3a" stroke-width="2" fill="none" stroke-linecap="round"/><path class="m3" d="M49 50q7 10 14 0z" fill="#7a2a2a"/></g>
+<g class="armR"><rect x="77" y="66" width="12" height="16" rx="5" fill="#14264d"/><rect x="79" y="78" width="9" height="24" rx="4" fill="#e0b08c"/><rect x="82" y="98" width="4" height="22" rx="2" fill="#9aa5b8"/><circle cx="84" cy="122" r="5" fill="none" stroke="#9aa5b8" stroke-width="3"/></g></g></svg></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],p2=n=>String(n).padStart(2,"0"),main=$("#main");
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const E=[
+{n:"LOUIE BURGER",i:"🍔",d:"Qué curioso que algo que parecía una salida sencilla terminara siendo el comienzo de tantas cosas. Esta fue nuestra primera salida, el momento en que empezamos a conocernos de verdad, sin saber todavía todo lo que vendría después. Y me gusta mirar atrás y saber que ahí empezó una parte muy especial de nuestra historia."},
+{n:"COLOMOS",i:"🌿",d:"Después vino Colomos, y creo que aquí fue donde empezaste a encandilarme de verdad. Entre caminar, hablar y estar juntos, hubo esa mezcla de nervios y emoción que no sabes bien cómo explicar cuando alguien empieza a gustarte demasiado. Y sí... aquí llegó nuestro primer beso, así que técnicamente este archivo tiene un nivel de importancia bastante alto."},
+{n:"ATLAS",i:"⚽",d:"Nuestro primer partido juntos. Yo iba emocionadísima, probablemente más de lo razonable para un partido, y además terminó apareciendo aquella torta ahogada que intentamos disfrutar como pudimos. Me acuerdo de la emoción de compartir contigo algo que me gustaba, y de verte ahí conmigo, haciendo que un día cualquiera se sintiera mucho más especial."},
+{n:"NAVIDALIA",i:"✨",d:"Navidalia fue de esas salidas con un poquito de todo: luces, emoción, mi familia y tú entrando poquito a poquito a una parte más personal de mi mundo. Me acuerdo especialmente de que conocieras a mis dos tíos, de verte conviviendo con ellos y de esa sensación bonita de compartir contigo algo que también era importante para mí."},
+{n:"BARRANCA",i:"🌲",d:"Esta salida tuvo un significado diferente. Después de todo lo que había pasado y de decidir que queríamos seguir intentando, estar ahí juntos se sintió como elegirnos otra vez, aunque fuera pasando un día juntos. No necesitaba que ocurriera algo enorme para que significara mucho, y quizá por eso la guardo con muchísimo cariño."},
+{n:"MOVIE NIGHT",i:"🎬",d:"Una de esas salidas en las que simplemente queríamos romper la rutina y disfrutar. Película, vino, masaje, mañositos y ese tipo de momentos en los que no hacía falta un gran plan para sentirnos cerquita. Me gusta recordarla por esa complicidad tranquila, de estar juntos sin necesidad de hacer demasiado."},
+{n:"BRYAN ADAMS",i:"🎵",d:"Una noche de concierto, música y nosotros compartiendo algo que se sentía especial. Y claro, está Heaven, porque hay canciones que después de ciertos momentos dejan de ser solamente canciones. Esta noche se quedó guardada por la música, por estar contigo y por la sensación de estar viviendo algo que quería recordar."},
+{n:"LUNES DE SAN NICO",i:"🌙",d:"Lo bonito de este archivo es que originalmente queríamos que fuera nuestra primera salida... y terminó ganando Louie Burger. Después hasta pensamos que San Nico podía esperar un poquito, porque para una primera salida era demasiado especial. Así que se convirtió en uno de esos planes que tienen historia incluso antes de suceder como los imaginamos."},
+{n:"KARTODROMO",i:"🏁",d:"Esta fue curiosa porque cada quien fue por su lado, con sus propios amigos, y aun así pasó algo que me gusta mucho recordar: nos estuvimos hablando, nos extrañamos y terminamos queriendo vernos. A veces esos pequeños momentos dicen muchísimo sin que nadie tenga que decir demasiado."},
+{n:"CHARROS",i:"⚾",d:"Una salida mucho más reciente, de esas que se sienten fáciles y bonitas porque simplemente nos divertimos. Comimos muchísimo, nos reímos y pasamos un buen rato juntos. Pero hay una frase tuya que se me quedó guardada: cuando dijiste que trabajabas mucho para poder hacer nuestras salidas. No sé si tú lo recuerdes igual, pero yo sí, porque me hizo sentir muy querida y muy consciente del esfuerzo que había detrás de esos momentos."}];
+const A=[
+["DETALLE INESPERADO","También me acuerdo de las flores. Y quizá para ti fue simplemente un detalle bonito, pero para mí significó algo más sencillo y más bonito: sentir que habías pensado en mí. Creo que son esas pequeñas cosas las que una termina guardando sin darse cuenta."],
+["EL FOTÓGRAFO OFICIAL","También me acuerdo de todas esas veces que terminaste tomando fotos, o incluso preguntándome si quería que me tomaras alguna. Quizá para ti era algo pequeño, pero para mí significaba guardar el momento contigo, y eso siempre me ha gustado muchísimo."],
+["VI ESTO Y ME ACORDÉ DE TI","Me acuerdo de esos pequeños detalles, como cuando veías algo de Snoopy o un Kinder Delice y terminabas acordándote de mí. Puede parecer una tontería, pero son justo las cosas que hacen sentir a alguien presente en tu día, incluso cuando no está contigo."],
+["TIEMPO DE ESPERA","También me acuerdo de todas esas veces que esperaste mientras yo terminaba de arreglarme. Sé que esperar no parece una gran demostración de cariño, pero para mí sí decía algo: que estabas dispuesto a regalarme un poquito de tu tiempo, incluso cuando podías haber estado haciendo cualquier otra cosa."],
+["CONDUCTOR OFICIAL","Y sí, también recuerdo todas esas veces que manejaste para llevarme a algún lugar, recogerme o acompañarme. A veces una se acostumbra a esos pequeños cuidados y no dice suficiente cuánto los aprecia, pero yo sí los vi y sí los guardé."],
+["CUANDO NO ME SENTÍA BIEN","Me acuerdo de las veces que, cuando no me sentía bien, buscaste la manera de cuidarme, de conseguir lo que necesitaba o simplemente estar pendiente. Hay formas de cariño que no hacen ruido, pero que se sienten muchísimo."],
+["MEMORIA DE XIME","Me acuerdo de todas esas veces que recordaste cosas que yo te había contado, incluso algunas que ya ni esperaba que recordaras. Me hacía sentir escuchada, porque no solamente estabas oyendo lo que decía... estabas poniendo atención."],
+["NO ERA MI PLAN","También me acuerdo de esas veces que terminaste acompañándome a cosas que probablemente no estaban en tu lista original de planes. Como Swan Lake. Y creo que es de lo que más bonito se siente en una relación: cuando alguien entra un poquito en tu mundo simplemente porque sabe que para ti significa algo."],
+["CHECK-IN","Buenos días, buenas noches, ¿ya llegaste?, avísame cuando estés en casa... Son mensajes pequeños, pero siempre me hicieron sentir acompañada. Es curioso cómo algo que toma solamente unos segundos puede hacer sentir a alguien tan cerquita."],
+["OPERACIÓN RESERVACIÓN","También me acuerdo de esas veces que te encargabas de reservar un lugar o preparar un plan. Me gustaba saber que habías pensado un poquito antes en nosotros, en dónde estaríamos y en qué podríamos disfrutar juntos."],
+["OBJETO EQUIPADO","Y luego está ese brazalete... porque hay cosas que uno se pone todos los días y simplemente olvida que están ahí, pero otras terminan cargando un poquito de historia. Este definitivamente pertenece a la segunda categoría."]];
+const P=[["LOUIE BURGER","🍔","Volver donde empezó todo: hamburguesas y plática sin prisa."],["COLOMOS","🌿","Una caminata juntos, sin prisa."],["ATLAS","⚽","Volver al estadio y repetir la emoción."],["NAVIDALIA","✨","Luces, ambiente y buen plan, versión de temporada."],["BARRANCA","🌲","Un día al aire libre, sin necesitar nada más."],["MOVIE NIGHT","🎬","Película, algo rico, vino y cero prisas."],["BRYAN ADAMS / CONCIERTO","🎵","Música, recuerdos y esa canción de fondo."],["LUNES DE SAN NICO","🌙","El plan que lleva tiempo esperando su turno."],["KARTODROMO","🏁","Una carrera amistosa para ver quién gana."],["CHARROS","⚾","Comer muchísimo y reírnos otra vez."],["COCINAR SUSHI O PIZZA","🍣","Sushi o pizza, cada quien haciendo su parte."],["MASAJE","💆","Una tarde para relajarnos y consentirnos."],["VINO + COMIDA + MAÑOSITOS","🍷","Comida rica, vino y tiempo juntos sin tener que correr."],["RESIDENT EVIL","🎮","Porque también podemos tener una noche de terror y risas."]];
+const LV=[{nm:"NIVEL 1 — CALENTAMIENTO",n:4,t:10,xp:500,o:6,names:1},{nm:"NIVEL 2 — YA SE PUSO SERIO",n:7,t:8,xp:1000,o:10,icons:1},{nm:"NIVEL 3 — MISIÓN DE SUPERVIVENCIA",n:10,t:7,xp:1500,o:10,dis:1}];
+let lv=0,xp=0,errs=0,lvErr=0,seq=[],pos=0,t0=0,queue=[],got=[],sel=[],mute=false,AC,shown=0;
+/* audio */
+function tone(f,d=.15,t="sine",v=.07,at=0){if(mute)return;try{AC=AC||new(window.AudioContext||webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),s=AC.currentTime+at;o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,s);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+d+.03)}catch(e){}}
+const S={click:()=>tone(520,.08,"triangle"),ok:()=>{tone(660,.12);tone(880,.18,"sine",.07,.1)},bad:()=>{tone(200,.25,"sawtooth",.05);tone(150,.3,"sawtooth",.05,.12)},xp:()=>{tone(900,.06);tone(1200,.1,"sine",.05,.06)},lvl:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.28,"triangle",.07,i*.12)),unlock:()=>[880,1175,1568].forEach((f,i)=>tone(f,.3,"sine",.06,i*.1))};
+$("#snd").onclick=e=>{mute=!mute;e.target.textContent=mute?"🔇":"🔊";if(!mute)S.click()};
+/* efectos */
+document.addEventListener("click",e=>{const b=e.target.closest(".btn");if(!b)return;const r=b.getBoundingClientRect(),s=document.createElement("span"),z=Math.max(r.width,r.height);s.className="rp";s.style.cssText=`width:${z}px;height:${z}px;left:${e.clientX-r.left-z/2}px;top:${e.clientY-r.top-z/2}px`;b.appendChild(s);setTimeout(()=>s.remove(),600)});
+function burst(x=innerWidth/2,y=innerHeight/2){for(let i=0;i<22;i++){const d=document.createElement("div");d.className="pt";d.style.left=x+"px";d.style.top=y+"px";document.body.appendChild(d);const a=Math.random()*6.28,r=60+Math.random()*130;d.animate([{transform:"translate(0,0)",opacity:1},{transform:`translate(${Math.cos(a)*r}px,${Math.sin(a)*r}px)`,opacity:0}],{duration:900+Math.random()*500,easing:"ease-out"}).onfinish=()=>d.remove()}}
+function hearts(n){for(let i=0;i<n;i++)setTimeout(()=>{const h=document.createElement("span");h.className="hr";h.textContent="❤";h.style.left=Math.random()*95+"%";h.style.fontSize=14+Math.random()*16+"px";h.style.animationDuration=3.5+Math.random()*2.5+"s";document.body.appendChild(h);setTimeout(()=>h.remove(),6500)},i*220)}
+function addXP(n){const f=document.createElement("div");f.className="fx";f.textContent="+"+n+" XP";document.body.appendChild(f);f.animate([{opacity:1,transform:"translate(-50%,0)"},{opacity:0,transform:"translate(-50%,-90px)"}],{duration:1500}).onfinish=()=>f.remove();const from=xp;xp+=n;const t=Date.now();(function s(){const k=Math.min(1,(Date.now()-t)/900);$("#xpn").textContent=Math.round(from+(xp-from)*k);if(k<1)requestAnimationFrame(s)})();$("#xb").style.width=Math.min(100,xp/60)+"%";S.xp()}
+const leo=s=>$("#leo").className=s;
+function render(h){main.className="";main.style.animation="none";void main.offsetWidth;main.style.animation="";main.innerHTML=h;scrollTo({top:0,behavior:"smooth"})}
+const tr=fn=>{main.className="out";setTimeout(fn,420)};
+const cont=(fn,label="CONTINUAR")=>{main.insertAdjacentHTML("beforeend",`<button class="btn big" id="nx">${label}</button>`);$("#nx").onclick=()=>{S.click();tr(fn)}};
+/* flujo */
+function start(){leo("");render(`<h1 class="title">LEO:<br>MISIÓN DE SUPERVIVENCIA</h1><p class="sub">Una misión especialmente diseñada para ti.</p><div class="glass pad"><p>Hay recuerdos que parecen fáciles...<br>hasta que intentas recordarlos en el orden correcto.</p></div><p class="gold">Observa.<br>Memoriza.<br>Sobrevive.</p>`);cont(ref,"COMENZAR MISIÓN")}
+function ref(){render(`<h2>ARCHIVO DE REFERENCIA</h2><p class="sub">Antes de comenzar, conviene conocer el archivo.<br>Después de esto no podrás decir que no te di pistas.</p><div class="grid">`+E.map((e,i)=>`<article class="glass card" style="animation-delay:${i*.09}s"><div class="hd"><span class="num">${p2(i+1)}</span><span class="ic">${e.i}</span></div><h3>${e.n}</h3><p>${e.d}</p></article>`).join("")+`</div>`);cont(ready,"YA ME LAS SÉ — COMENZAR")}
+function ready(){render(`<h2 style="line-height:1.6">Perfecto.<br>Ahora sí vamos a ver cuánto recuerdas.</h2>`);setTimeout(()=>tr(level),2600)}
+function level(){const L=LV[lv];lvErr=0;leo(L.dis?"focus":"");render(`<p class="tag">${lv==2?"ÚLTIMO NIVEL":"NIVEL "+(lv+1)+" DE 3"}</p><h2>${L.nm}</h2><div class="glass pad"><p>Verás <b>${L.n} salidas</b> durante <b>${L.t} segundos</b>.<br>${L.names?"Verás número y nombre.":"Solo verás el número: recuerda a qué salida corresponde."}<br>Después, tócalas en el mismo orden.</p></div>`);cont(round,"ESTOY LISTO")}
+function round(){const L=LV[lv];seq=shuffle([...Array(10).keys()]).slice(0,L.n);pos=0;leo(L.dis?"focus":"");
+render(`<h2>${L.nm}</h2><div class="bar"><i id="tb"></i></div><div class="seq">`+seq.map((k,i)=>`<div class="mc ${L.dis?"dis":""}" style="animation-delay:${i*.1}s"><b>${p2(k+1)}</b>${L.names?`<small>${E[k].n}</small>`:""}</div>`).join("")+`</div><p class="sub">Observa y memoriza el orden.</p>`);
+const tb=$("#tb");tb.style.transition=`width ${L.t}s linear`;requestAnimationFrame(()=>requestAnimationFrame(()=>tb.style.width="0%"));setTimeout(recall,L.t*1000)}
+function recall(){const L=LV[lv];$$(".mc").forEach(c=>c.classList.add("flip"));setTimeout(()=>{
+const pool=shuffle([...new Set([...seq,...shuffle([...Array(10).keys()]).filter(x=>!seq.includes(x))])].slice(0,L.o));
+const keep=new Set(seq);const opts=shuffle([...seq,...shuffle([...Array(10).keys()].filter(x=>!keep.has(x))).slice(0,L.o-L.n)]);
+render(`<h2>${L.nm}</h2><p class="sub" id="msg">Toca las salidas en el orden en que aparecieron.</p><div class="slots">${seq.map(()=>"<i></i>").join("")}</div><div class="opts">`+opts.map(k=>`<button class="opt" data-k="${k}"><b>${p2(k+1)}</b>${L.names?`<small>${E[k].n}</small>`:L.icons?`<span>${E[k].i}</span>`:""}</button>`).join("")+`</div>`);
+t0=Date.now();$$(".opt").forEach(b=>b.onclick=()=>tap(b))},500)}
+function tap(b){const k=+b.dataset.k;if(b.disabled)return;
+if(k===seq[pos]){b.disabled=true;b.classList.add("good");const s=$$(".slots i")[pos];s.textContent=p2(k+1);s.classList.add("f");pos++;S.ok();if(pos===seq.length)setTimeout(done,500)}
+else{$$(".opt").forEach(o=>o.disabled=true);b.classList.add("bad");S.bad();errs++;lvErr++;leo("lose");const m=$("#msg");m.style.color="var(--bad)";m.textContent="Ese no era. Respira, aparece una nueva secuencia y lo intentas otra vez.";setTimeout(round,2200)}}
+function done(){const L=LV[lv],b=[[lv==2?"MISIÓN COMPLETADA":"MEMORIA CONFIRMADA",L.xp]];if(!lvErr)b.push(["PERFECT MEMORY",250]);if(Date.now()-t0<L.n*2200)b.push(["SPEED BONUS",100]);
+S.lvl();leo("win");burst();render(`<h1 class="title">${lv==2?"MISIÓN COMPLETADA":"MEMORIA CONFIRMADA"}</h1><div id="bl" class="glass pad" style="min-width:min(380px,90%)"></div>`);
+b.forEach((x,i)=>setTimeout(()=>{$("#bl").insertAdjacentHTML("beforeend",`<p class="bn">${x[0]} <b>+${x[1]} XP</b></p>`);addXP(x[1]);burst(innerWidth/2,innerHeight/2.4)},500+i*750));
+setTimeout(()=>{if(lv==2)cont(fin);else{queue=lv==0?[unlock,unlock,inter]:[unlock,unlock,combo];cont(adv)}},700+b.length*750)}
+function adv(){const f=queue.shift();if(f)f();else{lv++;level()}}
+function unlock(){const left=A.map((a,i)=>i).filter(i=>!got.includes(i)),i=left[Math.random()*left.length|0];got.push(i);S.unlock();burst();
+render(`<p class="tag">ARCHIVO DESBLOQUEADO</p><article class="glass pad" style="max-width:660px"><h2 style="margin-bottom:12px">${A[i][0]}</h2><p style="line-height:1.7;font-size:1.05rem">${A[i][1]}</p><p class="xp" style="margin-top:14px">+200 XP</p></article>`);setTimeout(()=>addXP(200),600);setTimeout(()=>cont(adv),1800)}
+function inter(){const k=Math.random()*3|0;
+if(k==0){render(`<p class="tag">DATO INNECESARIO PERO IMPORTANTE:</p><h2>hay recuerdos que todavía me hacen sonreír.</h2>`);setTimeout(()=>cont(adv),1200)}
+else if(k==1){render(`<p class="tag">BONUS</p><h2>+50 XP<br>porque sí... porque me acordé de ti.</h2>`);setTimeout(()=>addXP(50),500);setTimeout(()=>cont(adv),1500)}
+else{render(`<p class="tag">SISTEMA DETECTÓ:</p><h2>demasiados recuerdos guardados.</h2><div id="ch" style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center"><button class="btn" id="b1">ELIMINAR</button><button class="btn" id="b2">NO</button></div>`);
+const r=t=>{S.click();$("#ch").outerHTML=`<h2 style="color:var(--gold2)">${t}</h2>`;setTimeout(()=>cont(adv),400)};
+$("#b1").onclick=()=>r("MEMORIA CASI LLENA... pero todavía caben algunos recuerdos.");$("#b2").onclick=()=>r("Buena decisión.")}}
+function combo(){S.lvl();hearts(14);burst();render(`<p class="tag">COMBO DESBLOQUEADO</p><h1 class="title">"SÍ ME ACUERDO"</h1><p class="xp">+1000 XP</p><div class="glass pad"><p style="line-height:1.8;font-size:1.1rem">No eran grandes gestos.<br><br>Eran muchas cositas pequeñas que, juntas, me hicieron sentir querida.<br><br>Y sí... me acuerdo de ellas. ❤️</p></div>`);setTimeout(()=>addXP(1000),600);setTimeout(()=>cont(adv),2000)}
+function fin(){S.lvl();leo("win");hearts(6);let pr=errs==0;
+render(`<h1 class="title">MISIÓN COMPLETADA</h1>${pr?'<p class="tag">PERFECT RUN</p><p class="xp">+500 XP</p>':""}<div class="stat"><div class="glass"><small>XP TOTAL</small><b id="c0">0</b></div><div class="glass"><small>NIVEL</small><b>3</b></div><div class="glass"><small>ARCHIVOS DESBLOQUEADOS</small><b>${got.length}</b></div><div class="glass"><small>RECUERDOS ENCONTRADOS</small><b>${got.length+10}</b></div></div><div class="glass pad" style="line-height:1.8"><p class="ln" style="animation-delay:1s">Resulta que sí había muchas cosas que recordar.</p><p class="ln" style="animation-delay:2.4s;margin-top:10px">Algunas grandes.<br>Algunas pequeñitas.<br>Algunas que quizá parecían insignificantes.</p><p class="ln" style="animation-delay:4.2s;margin-top:10px">Pero todas forman parte de algo que para mí fue muy bonito.</p><p class="ln" style="animation-delay:5.6s;margin-top:10px">Gracias por haberlas hecho conmigo. ❤️</p></div>`);
+if(pr)setTimeout(()=>addXP(500),700);setTimeout(()=>{const e=$("#c0");if(e)e.textContent=xp},1800);setTimeout(()=>cont(pick),7400)}
+function pick(){sel=[];leo("");render(`<p class="tag">ARCHIVO DESBLOQUEADO</p><h2>"¿Y si hacemos memoria otra vez?"</h2><h1 class="title" style="font-size:1.9rem">MISIÓN FINAL</h1><p class="sub">Ya sobreviviste a los recuerdos.<br>Ahora toca algo más sencillo.</p><h3>ELIGE DOS PLANES</h3><div class="slotsP"><div class="glass sl" id="s0"></div><div class="glass sl" id="s1"></div></div><p class="sub" id="hint" style="font-size:.85rem">Toca un plan para elegirlo. Si quieres cambiar, tócalo de nuevo para quitarlo.</p><div class="grid">`+P.map((p,i)=>`<article class="glass card plan" data-i="${i}"><div class="hd"><span class="ic">${p[1]}</span><span class="badge"></span></div><h3>${p[0]}</h3><p>${p[2]}</p></article>`).join("")+`</div><button class="btn big" id="ok" disabled>CONFIRMAR PLANES</button>`);
+const upd=()=>{["ESTA SEMANA","LA PRÓXIMA SEMANA"].forEach((t,j)=>{$("#s"+j).innerHTML=`<small>${sel[j]!=null?"✓ "+t:t}</small><b>${sel[j]!=null?P[sel[j]][0]:j?"Selecciona otro":"Selecciona uno"}</b>`});$$(".plan").forEach(c=>{const j=sel.indexOf(+c.dataset.i);c.classList.toggle("sel",j>-1);c.querySelector(".badge").textContent=j==0?"ESTA SEMANA":j==1?"LA PRÓXIMA":""});$("#ok").disabled=sel.length<2};upd();
+$$(".plan").forEach(c=>c.onclick=()=>{const i=+c.dataset.i;S.click();if(sel.includes(i))sel=sel.filter(x=>x!==i);else if(sel.length<2)sel.push(i);else{$("#hint").textContent="Ya elegiste dos. Toca uno para quitarlo y cambiarlo.";return}upd()});
+$("#ok").onclick=()=>{S.unlock();tr(confirmP)}}
+function confirmP(){burst();render(`<h1 class="title">PLANES CONFIRMADOS</h1><div class="glass pad" style="min-width:min(420px,90%)"><p class="tag">ESTA SEMANA</p><h2>${P[sel[0]][1]} ${P[sel[0]][0]}</h2><br><p class="tag">LA PRÓXIMA SEMANA</p><h2>${P[sel[1]][1]} ${P[sel[1]][0]}</h2></div><p class="gold">Perfecto.<br>Ahora sí hay misión nueva.</p>`);cont(final)}
+function final(){S.lvl();hearts(8);leo("win");render(`<h1 class="title">MISIÓN COMPLETADA</h1><h2>DOS PLANES DESBLOQUEADOS</h2><div class="glass pad" style="min-width:min(420px,90%);line-height:2"><p>Esta semana:<br><b style="color:var(--gold2);font-size:1.3rem">❤️ ${P[sel[0]][0]}</b></p><p>La próxima:<br><b style="color:var(--gold2);font-size:1.3rem">❤️ ${P[sel[1]][0]}</b></p></div><p style="font-size:1.1rem">Ahora haz captura de tus dos elecciones<br>y mándamela. 😌</p><p class="sub">📸 Haz captura de esta pantalla y mándamela.</p><p class="gold" style="margin-top:12px">Creo que algunas cosas merecen una segunda vuelta.</p>`)}
+/* fondo: estrellas y partículas */
+(function(){const c=$("#bg"),x=c.getContext("2d");let W,H,st=[];const rs=()=>{W=c.width=innerWidth;H=c.height=innerHeight;st=Array.from({length:Math.min(140,W/8)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.2,v:Math.random()*.25+.05,g:Math.random()<.25,p:Math.random()*6}))};rs();addEventListener("resize",rs);
+(function f(t){x.clearRect(0,0,W,H);st.forEach(s=>{s.y-=s.v*(s.g?1:.3);if(s.y<-5){s.y=H+5;s.x=Math.random()*W}const a=.35+.35*Math.sin(t/900+s.p);x.fillStyle=s.g?`rgba(240,200,112,${a})`:`rgba(243,234,216,${a})`;x.beginPath();x.arc(s.x,s.y,s.r,0,6.3);x.fill()});requestAnimationFrame(f)})(0)})();
+/* avión ocasional */
+const pl=$("#plane");setInterval(()=>{pl.style.top=8+Math.random()*22+"%";pl.classList.remove("fly");void pl.getBoundingClientRect();pl.classList.add("fly")},24000);setTimeout(()=>pl.classList.add("fly"),4000);
+start();
+</script></body></html>
